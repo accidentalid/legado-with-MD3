@@ -125,7 +125,8 @@ jobs:
 
           - 版本：${VERSION_NAME}-waterwave（versionCode 由 commit 数生成）
           - 新增：iReader SmartOS 水波纹翻页（非 iReader 设备自动隐藏该选项）
-          - 与官方 MD3 版（io.legato.kazusa）包名不同，可并肩安装" \
+          - 与官方 MD3 版（io.legato.kazusa）包名不同，可并肩安装
+          - ⚠️ 请勿开启「实验室 - 墨水屏模式」（墨水屏主题）：该模式下翻页动画选择存在上游已知问题（选后回弹默认）；iReader 设备无需开启即可正常使用水波纹等全部功能" \
             app/build/outputs/apk/${{ env.PRODUCT }}/release/*.apk
         env:
           GH_TOKEN: ${{ github.token }}
