@@ -1,5 +1,7 @@
 # Legado with MD3
 
+> 本包为适配掌阅 iReader Neo 3 Ultra 的版本，仅添加水波纹翻页动效，后续更新不定。
+
 <p align="left">
   <a href="https://github.com/HapeLee/legado-with-MD3">简体中文</a> ｜ 
   <a href="https://github.com/HapeLee/legado-with-MD3/blob/main/English.md">English</a>
