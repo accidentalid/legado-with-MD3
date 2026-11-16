@@ -1,0 +1,64 @@
+name: Sync Upstream HapeLee
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 每天 04:30（北京时间）同步上游
+    - cron: '30 20 * * *'
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    # 只在自己的 fork 上跑，避免误在其他环境触发
+    if: github.repository == 'accidentalid/legado-with-MD3'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+          # GITHUB_TOKEN 推送需要显式持有凭据
+          persist-credentials: true
+
+      - name: Merge upstream
+        id: merge
+        run: |
+          git config user.name "accidentalid"
+          git config user.email "390814415@qq.com"
+          git remote add upstream https://github.com/HapeLee/legado-with-MD3.git
+          git fetch upstream main
+          # merge（不 rebase 不 force push）：本地功能提交靠 merge 保留；
+          # 冲突时本步骤失败，交给下一步建 issue 提醒手动处理。
+          git merge upstream/main --no-edit
+
+      - name: Push
+        if: success()
+        run: git push origin main
+
+      - name: Report merge failure via issue
+        if: failure()
+        run: |
+          gh issue create \
+            -R "${{ github.repository }}" \
+            --title "上游同步失败：需要手动处理合并冲突" \
+            --body "每日同步工作流在合并 HapeLee/legado-with-MD3 main 时失败（很可能是合并冲突）。
+
+          请手动处理：
+          \`\`\`bash
+          git fetch upstream main
+          git merge upstream/main
+          # 解决冲突后
+          git push origin main
+          \`\`\`
+
+          运行记录：${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        env:
+          GH_TOKEN: ${{ github.token }}

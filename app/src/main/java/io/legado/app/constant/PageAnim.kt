@@ -18,6 +18,7 @@ object PageAnim {
     const val iosCurlPageAnim = 6
     const val googleCurlPageAnim = 7
     const val parallaxPageAnim = 8
+    const val waterRipplePageAnim = 9
 
     @Target(AnnotationTarget.VALUE_PARAMETER)
     @Retention(AnnotationRetention.SOURCE)
@@ -31,6 +32,7 @@ object PageAnim {
         iosCurlPageAnim,
         googleCurlPageAnim,
         parallaxPageAnim,
+        waterRipplePageAnim,
     )
     annotation class Anim
 

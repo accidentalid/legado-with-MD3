@@ -31,6 +31,18 @@ class AndroidPlatformCapabilities(private val activity: AppCompatActivity) {
             return selectCornerRadiusPx(radii)
         }
 
+    /**
+     * 当前屏幕旋转（`android.view.Surface.rotation` 0-3），水波纹翻页的方向码索引。
+     * 取不到回落 0（自然竖屏）；不缓存，跟随旋转随时可变。
+     */
+    val displayRotation: Int
+        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            activity.display?.rotation ?: 0
+        } else {
+            @Suppress("DEPRECATION")
+            activity.windowManager.defaultDisplay.rotation
+        }
+
     companion object {
         const val DEFAULT_DISPLAY_CORNER_RADIUS_PX = 60f
 

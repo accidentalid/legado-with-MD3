@@ -55,6 +55,7 @@ import io.legado.app.R
 import io.legado.app.constant.PageAnim
 import io.legado.app.data.repository.ReadPreferences
 import io.legado.app.domain.model.settings.ReadStyleItem
+import io.legado.app.feature.reader.platform.waterripple.IReaderRipple
 import io.legado.app.help.config.ReadStyleResolver
 import io.legado.app.model.ReadBook
 import io.legado.app.ui.book.read.ConfigUpdate
@@ -353,17 +354,21 @@ fun GlobalThemePage(
 
         // 每一项带自己的 PageAnim 取值：菜单里加一项或换个顺序都不会再让「下标 == 常量值」这个
         // 隐含约定错位（菜单里加一项或换个顺序都不会再让「下标 == 常量值」这个隐含约定错位）。
-        val pageAnimOptions = listOf(
-            R.string.page_anim_cover to PageAnim.coverPageAnim,
-            R.string.page_anim_slide to PageAnim.slidePageAnim,
-            R.string.page_anim_simulation to PageAnim.simulationPageAnim,
-            R.string.page_anim_ios_curl to PageAnim.iosCurlPageAnim,
-            R.string.page_anim_google_curl to PageAnim.googleCurlPageAnim,
-            R.string.page_anim_parallax to PageAnim.parallaxPageAnim,
-            R.string.page_anim_scroll to PageAnim.scrollPageAnim,
-            R.string.page_anim_fade to PageAnim.fadePageAnim,
-            R.string.page_anim_none to PageAnim.noAnim,
-        )
+        // 水波纹依赖 iReader SmartOS 固件接口，仅在支持的设备上提供该选项。
+        val pageAnimOptions = buildList {
+            add(R.string.page_anim_cover to PageAnim.coverPageAnim)
+            add(R.string.page_anim_slide to PageAnim.slidePageAnim)
+            add(R.string.page_anim_simulation to PageAnim.simulationPageAnim)
+            add(R.string.page_anim_ios_curl to PageAnim.iosCurlPageAnim)
+            add(R.string.page_anim_google_curl to PageAnim.googleCurlPageAnim)
+            add(R.string.page_anim_parallax to PageAnim.parallaxPageAnim)
+            add(R.string.page_anim_scroll to PageAnim.scrollPageAnim)
+            add(R.string.page_anim_fade to PageAnim.fadePageAnim)
+            add(R.string.page_anim_none to PageAnim.noAnim)
+            if (IReaderRipple.supported) {
+                add(R.string.page_anim_water_ripple to PageAnim.waterRipplePageAnim)
+            }
+        }
         val pageAnimEntries = pageAnimOptions.map { stringResource(it.first) to it.second }
         val pageAnimChoices = pageAnimEntries
             .map { (display, value) -> AppChoiceOption(id = value.toString(), label = display) }

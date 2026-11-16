@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import io.legado.app.R
 import io.legado.app.constant.PageAnim
+import io.legado.app.feature.reader.platform.waterripple.IReaderRipple
 import io.legado.app.model.ReadBook
 import io.legado.app.ui.widget.components.alert.AppAlertDialog
 import io.legado.app.ui.widget.components.settingItem.TinyDropdownSettingItem
@@ -15,18 +16,22 @@ fun PageAnimConfigSheet(
 ) {
     // 每项自带 PageAnim 取值，不按「下标 - 1」推导：列表少一项就会整体错位一格
     // （最后一项写着「无动画」，落库的却是别的值）。
-    val items = listOf(
-        R.string.btn_default_s to -1,
-        R.string.page_anim_cover to PageAnim.coverPageAnim,
-        R.string.page_anim_slide to PageAnim.slidePageAnim,
-        R.string.page_anim_simulation to PageAnim.simulationPageAnim,
-        R.string.page_anim_ios_curl to PageAnim.iosCurlPageAnim,
-        R.string.page_anim_google_curl to PageAnim.googleCurlPageAnim,
-        R.string.page_anim_parallax to PageAnim.parallaxPageAnim,
-        R.string.page_anim_scroll to PageAnim.scrollPageAnim,
-        R.string.page_anim_fade to PageAnim.fadePageAnim,
-        R.string.page_anim_none to PageAnim.noAnim,
-    )
+    // 水波纹依赖 iReader SmartOS 固件接口，仅在支持的设备上提供该选项。
+    val items = buildList {
+        add(R.string.btn_default_s to -1)
+        add(R.string.page_anim_cover to PageAnim.coverPageAnim)
+        add(R.string.page_anim_slide to PageAnim.slidePageAnim)
+        add(R.string.page_anim_simulation to PageAnim.simulationPageAnim)
+        add(R.string.page_anim_ios_curl to PageAnim.iosCurlPageAnim)
+        add(R.string.page_anim_google_curl to PageAnim.googleCurlPageAnim)
+        add(R.string.page_anim_parallax to PageAnim.parallaxPageAnim)
+        add(R.string.page_anim_scroll to PageAnim.scrollPageAnim)
+        add(R.string.page_anim_fade to PageAnim.fadePageAnim)
+        add(R.string.page_anim_none to PageAnim.noAnim)
+        if (IReaderRipple.supported) {
+            add(R.string.page_anim_water_ripple to PageAnim.waterRipplePageAnim)
+        }
+    }
 
     // 调用方按 when(sheet) 条件组合本弹窗，所以这里 show 恒为 true；没有确定/取消按钮，
     // 选一项即落库并关闭（与原来的裸 AlertDialog 行为一致）。

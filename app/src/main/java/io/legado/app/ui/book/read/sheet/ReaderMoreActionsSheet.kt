@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import io.legado.app.R
 import io.legado.app.constant.PageAnim
 import io.legado.app.data.entities.Book
+import io.legado.app.feature.reader.platform.waterripple.IReaderRipple
 import io.legado.app.model.ReadBook
 import io.legado.app.ui.book.read.MoreActionIds
 import io.legado.app.ui.book.read.ReadBookButtonConfigItem
@@ -535,18 +536,22 @@ private fun PageAnimDropdown(
     onDismissRequest: () -> Unit,
     onIntent: (ReadBookIntent) -> Unit,
 ) {
-    val pageAnimOptions = listOf(
-        R.string.btn_default_s to -1,
-        R.string.page_anim_cover to PageAnim.coverPageAnim,
-        R.string.page_anim_slide to PageAnim.slidePageAnim,
-        R.string.page_anim_simulation to PageAnim.simulationPageAnim,
-        R.string.page_anim_ios_curl to PageAnim.iosCurlPageAnim,
-        R.string.page_anim_google_curl to PageAnim.googleCurlPageAnim,
-        R.string.page_anim_parallax to PageAnim.parallaxPageAnim,
-        R.string.page_anim_scroll to PageAnim.scrollPageAnim,
-        R.string.page_anim_fade to PageAnim.fadePageAnim,
-        R.string.page_anim_none to PageAnim.noAnim,
-    )
+    // 水波纹依赖 iReader SmartOS 固件接口，仅在支持的设备上提供该选项。
+    val pageAnimOptions = buildList {
+        add(R.string.btn_default_s to -1)
+        add(R.string.page_anim_cover to PageAnim.coverPageAnim)
+        add(R.string.page_anim_slide to PageAnim.slidePageAnim)
+        add(R.string.page_anim_simulation to PageAnim.simulationPageAnim)
+        add(R.string.page_anim_ios_curl to PageAnim.iosCurlPageAnim)
+        add(R.string.page_anim_google_curl to PageAnim.googleCurlPageAnim)
+        add(R.string.page_anim_parallax to PageAnim.parallaxPageAnim)
+        add(R.string.page_anim_scroll to PageAnim.scrollPageAnim)
+        add(R.string.page_anim_fade to PageAnim.fadePageAnim)
+        add(R.string.page_anim_none to PageAnim.noAnim)
+        if (IReaderRipple.supported) {
+            add(R.string.page_anim_water_ripple to PageAnim.waterRipplePageAnim)
+        }
+    }
     AppActionMenu(
         groups = persistentListOf(
             AppActionGroup(

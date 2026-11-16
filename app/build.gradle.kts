@@ -98,6 +98,9 @@ android {
                 signingConfig = signingConfigs.getByName("myConfig")
             }
             manifestPlaceholders["app_name"] = "@string/app_name"
+            // waterwave 自维护版：包名加后缀与官方 MD3 版并肩共存，版本名加后缀示区分。
+            applicationIdSuffix = ".waterwave"
+            versionNameSuffix = "-waterwave"
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(

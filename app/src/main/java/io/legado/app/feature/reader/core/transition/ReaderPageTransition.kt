@@ -12,7 +12,8 @@ enum class ReaderTransitionMode {
     FADE,
     NONE,
     GOOGLE_CURL,
-    PARALLAX;
+    PARALLAX,
+    WATER_RIPPLE;
 
     companion object {
         fun fromPageAnim(value: Int): ReaderTransitionMode = when (value) {
@@ -24,6 +25,7 @@ enum class ReaderTransitionMode {
             6 -> IOS_CURL
             7 -> GOOGLE_CURL
             8 -> PARALLAX
+            9 -> WATER_RIPPLE
             else -> NONE
         }
     }

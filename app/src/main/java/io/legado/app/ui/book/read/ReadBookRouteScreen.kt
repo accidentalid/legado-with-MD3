@@ -81,6 +81,7 @@ import io.legado.app.feature.reader.core.model.readerBackgroundAlpha
 import io.legado.app.feature.reader.core.transition.ReaderPageTurnSpeed
 import io.legado.app.feature.reader.core.transition.ReaderTransitionMode
 import io.legado.app.feature.reader.platform.ReaderPerfTrace
+import io.legado.app.feature.reader.platform.waterripple.IReaderRipple
 import io.legado.app.help.IntentHelp
 import io.legado.app.model.ReadBook
 import io.legado.app.model.SourceCallBack
@@ -697,6 +698,17 @@ fun ReadBookRouteScreen(
             // （首个可读页之前、退出之后）仍由根层兜底。
             val readerCanvasVisible = hasReadablePage
             val readerTransitionMode = ReaderTransitionMode.fromPageAnim(controller.pageAnim)
+            // 水波纹翻页（iReader SmartOS 固件效果）：效果绑定"下一次整帧提交"，命令必须
+            // 先于新页上屏发出；两个翻页回调是拖拽/点击/按键/自动翻页的唯一汇合点。
+            val queueWaterRipple: (Boolean) -> Unit = { forward ->
+                if (readerTransitionMode == ReaderTransitionMode.WATER_RIPPLE && IReaderRipple.supported) {
+                    IReaderRipple.queuePageTurnRipple(
+                        forward = forward,
+                        rotation = platformCapabilities.displayRotation,
+                        speed = ReaderPageTurnSpeed.fromValue(state.styleConfig.pageAnimSpeed),
+                    )
+                }
+            }
             if (!readerCanvasVisible) {
                 // 归因用：成对 marker 夹住子树，其间隔即该子树的组合耗时（都在
                 // `Compose:recompose` 之内）。子系统不用 tracing 时 marker 是空操作。
@@ -748,8 +760,14 @@ fun ReadBookRouteScreen(
                             with(selectionBackdrop) { Modifier.recordReaderWhileSelecting(selectionMenuState) }
                         } else Modifier,
                     ),
-                onPreviousPage = { controller.completeComposePageTurn(PageDirection.PREV) },
-                onNextPage = { controller.completeComposePageTurn(PageDirection.NEXT) },
+                onPreviousPage = {
+                    queueWaterRipple(false)
+                    controller.completeComposePageTurn(PageDirection.PREV)
+                },
+                onNextPage = {
+                    queueWaterRipple(true)
+                    controller.completeComposePageTurn(PageDirection.NEXT)
+                },
                     onPageBoundaryReached = controller::showComposePageBoundary,
                     // 放行条件读取"书中是否还有邻章"（旧 View hasNextChapter/hasPrevChapter），
                     // 而不是邻章当前是否已排版完成：两章交接期间排版批次可能还没落地。

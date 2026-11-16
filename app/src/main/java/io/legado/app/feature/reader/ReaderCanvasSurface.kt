@@ -574,7 +574,7 @@ fun ReaderCanvasSurface(
             }
             return
         }
-        if (transitionMode == ReaderTransitionMode.NONE) {
+        if (transitionMode == ReaderTransitionMode.NONE || transitionMode == ReaderTransitionMode.WATER_RIPPLE) {
             completePendingTurn()
             displayOffset = 0f
             applyTransition(ReaderPageTransition())
