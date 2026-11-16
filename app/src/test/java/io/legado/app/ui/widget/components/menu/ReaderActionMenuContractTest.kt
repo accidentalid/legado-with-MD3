@@ -87,6 +87,7 @@ class ReaderActionMenuContractTest {
             assertTrue("翻页动画项丢失：$entry", source.contains(entry))
         }
         assertTrue("动画未写回书籍", source.contains("ReadBook.book?.setPageAnim(value)"))
+        assertTrue("动画未持久化", source.contains("ReadBook.saveRead()"))
         assertTrue("动画未通知页面", source.contains("ReadBookIntent.PageAnimChanged"))
         assertTrue("动画丢失选中态", source.contains("currentPageAnim == value"))
     }

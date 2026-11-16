@@ -571,6 +571,7 @@ private fun PageAnimDropdown(
                 ?.let { value ->
                     // 先写回书籍再通知页面：顺序与旧菜单一致，页面据此重建渲染器。
                     ReadBook.book?.setPageAnim(value)
+                    ReadBook.saveRead()
                     onIntent(ReadBookIntent.PageAnimChanged)
                 }
         },

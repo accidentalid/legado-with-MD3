@@ -397,6 +397,7 @@ fun GlobalThemePage(
                 selectedId = pageAnim.toString(),
                 onSelect = { id ->
                     ReadBook.book?.setPageAnim(-1)
+                    ReadBook.saveRead()
                     onIntent(ReadBookIntent.UpdateConfig(ConfigUpdate.PageAnim(id.toInt())))
                 },
                 title = stringResource(R.string.page_anim),

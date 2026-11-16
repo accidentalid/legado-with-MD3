@@ -47,6 +47,7 @@ fun PageAnimConfigSheet(
                 entryValues = items.map { it.second.toString() }.toTypedArray(),
                 onValueChange = {
                     ReadBook.book?.setPageAnim(it.toInt())
+                    ReadBook.saveRead()
                     onAnimChanged()
                     onDismissRequest()
                 },
