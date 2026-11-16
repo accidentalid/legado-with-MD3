@@ -11,14 +11,9 @@ on:
           - appCore
           - appComic
         default: appCore
-      publish:
-        description: '构建成功后发布 GitHub Release（tag: waterwave-<版本>-r<run>）'
-        required: false
-        type: boolean
-        default: false
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
@@ -111,22 +106,3 @@ jobs:
         with:
           name: legado-waterwave-${{ env.PRODUCT_TAG }}-${{ github.run_number }}
           path: app/build/outputs/apk/${{ env.PRODUCT }}/release/*.apk
-
-      # tag 带后缀避免与上游 HapeLee 的 3.26.x tag 冲突
-      - name: Create GitHub Release
-        if: ${{ github.event.inputs.publish == 'true' }}
-        run: |
-          TAG="waterwave-${VERSION_NAME}-r${GITHUB_RUN_NUMBER}"
-          gh release create "$TAG" \
-            -R "${{ github.repository }}" \
-            --target "$GITHUB_SHA" \
-            --title "Waterwave ${VERSION_NAME} (build ${GITHUB_RUN_NUMBER})" \
-            --notes "自维护 waterwave 版，基于上游 HapeLee/legado-with-MD3。
-
-          - 版本：${VERSION_NAME}-waterwave（versionCode 由 commit 数生成）
-          - 新增：iReader SmartOS 水波纹翻页（非 iReader 设备自动隐藏该选项）
-          - 与官方 MD3 版（io.legato.kazusa）包名不同，可并肩安装
-          - ⚠️ 请勿开启「实验室 - 墨水屏模式」（墨水屏主题）：该模式下翻页动画选择存在上游已知问题（选后回弹默认）；iReader 设备无需开启即可正常使用水波纹等全部功能" \
-            app/build/outputs/apk/${{ env.PRODUCT }}/release/*.apk
-        env:
-          GH_TOKEN: ${{ github.token }}
