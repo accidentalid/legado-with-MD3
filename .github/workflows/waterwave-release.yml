@@ -13,7 +13,7 @@ on:
         default: appCore
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -106,3 +106,10 @@ jobs:
         with:
           name: legado-waterwave-${{ env.PRODUCT_TAG }}-${{ github.run_number }}
           path: app/build/outputs/apk/${{ env.PRODUCT }}/release/*.apk
+
+      # 供 sync 工作流判断该版本是否已自动出过包；
+      # 手动重跑同版本时 tag 已存在，忽略即可（push 失败也只影响防重复判断，不影响产物）。
+      - name: Mark version as built
+        run: |
+          git tag "waterwave-built/${VERSION_NAME}" 2>/dev/null || true
+          git push origin "waterwave-built/${VERSION_NAME}" 2>/dev/null || true

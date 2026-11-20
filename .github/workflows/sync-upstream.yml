@@ -9,6 +9,7 @@ on:
 permissions:
   contents: write
   issues: write
+  actions: write
 
 concurrency:
   group: sync-upstream
@@ -42,6 +43,34 @@ jobs:
       - name: Push
         if: success()
         run: git push origin main
+
+      # 上游发新 release 且已同步进 main 时自动触发出包；
+      # 用 waterwave-built/<版本> tag 防重复（出包工作流成功后打标）。
+      - name: Auto build on synced upstream release
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          LATEST_TAG=$(gh api repos/HapeLee/legado-with-MD3/releases/latest --jq .tag_name)
+          OBJ_TYPE=$(gh api "repos/HapeLee/legado-with-MD3/git/ref/tags/$LATEST_TAG" --jq .object.type)
+          SHA=$(gh api "repos/HapeLee/legado-with-MD3/git/ref/tags/$LATEST_TAG" --jq .object.sha)
+          # annotated tag 对象需再解一层才到 commit
+          if [ "$OBJ_TYPE" = "tag" ]; then
+            SHA=$(gh api "repos/HapeLee/legado-with-MD3/git/tags/$SHA" --jq .object.sha)
+          fi
+          if ! git merge-base --is-ancestor "$SHA" HEAD; then
+            echo "上游 release $LATEST_TAG 还没同步进 main，跳过自动出包"
+            exit 0
+          fi
+          get_prop() { grep -E "^$1=" app/version.properties | head -1 | cut -d= -f2; }
+          VERSION="$(get_prop VERSION_MAJOR).$(get_prop VERSION_MINOR).$(get_prop VERSION_PATCH)"
+          if git ls-remote --exit-code origin "refs/tags/waterwave-built/$VERSION" >/dev/null 2>&1; then
+            echo "$VERSION 已出过包（waterwave-built/$VERSION 已存在），跳过"
+            exit 0
+          fi
+          echo "检测到已同步的上游 release $LATEST_TAG（版本 $VERSION），触发自动出包"
+          gh workflow run "Build Waterwave Release APK" -R "${{ github.repository }}" --ref main -f product=appCore
 
       - name: Report merge failure via issue
         if: failure()
