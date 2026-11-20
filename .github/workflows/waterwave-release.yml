@@ -107,9 +107,12 @@ jobs:
           name: legado-waterwave-${{ env.PRODUCT_TAG }}-${{ github.run_number }}
           path: app/build/outputs/apk/${{ env.PRODUCT }}/release/*.apk
 
-      # 供 sync 工作流判断该版本是否已自动出过包；
-      # 手动重跑同版本时 tag 已存在，忽略即可（push 失败也只影响防重复判断，不影响产物）。
+      # 供 sync 工作流判断该版本是否已自动出过包；用 API 建 ref（不依赖 git 凭据，
+      # 失败原因可见）。同版本重跑时 ref 已存在，忽略即可。
       - name: Mark version as built
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          git tag "waterwave-built/${VERSION_NAME}" 2>/dev/null || true
-          git push origin "waterwave-built/${VERSION_NAME}" 2>/dev/null || true
+          gh api -X POST "repos/${{ github.repository }}/git/refs" \
+            -f "ref=refs/tags/waterwave-built/${VERSION_NAME}" \
+            -f "sha=$(git rev-parse HEAD)" 2>&1 | grep -v "Reference already exists" || true
